@@ -5,6 +5,15 @@ export interface ReportOptions {
   format?: 'text' | 'json';
 }
 
+/**
+ * Generates a human-readable or JSON summary of a DiffResult.
+ *
+ * @param diff - The diff to report on.
+ * @param beforeLabel - Label for the "before" snapshot (e.g. a filename or timestamp).
+ * @param afterLabel - Label for the "after" snapshot.
+ * @param options - Formatting options.
+ * @returns A formatted string representation of the diff.
+ */
 export function generateReport(
   diff: DiffResult,
   beforeLabel: string,
@@ -70,4 +79,26 @@ export function generateReport(
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Returns a one-line summary of a DiffResult, e.g. "+2 -1 ~3".
+ *
+ * @param diff - The diff to summarise.
+ * @returns A compact summary string.
+ */
+export function summarizeDiff(diff: DiffResult): string {
+  const added = Object.keys(diff.added).length;
+  const removed = Object.keys(diff.removed).length;
+  const changed = Object.keys(diff.changed).length;
+
+  if (!added && !removed && !changed) {
+    return 'no changes';
+  }
+
+  const parts: string[] = [];
+  if (added) parts.push(`+${added}`);
+  if (removed) parts.push(`-${removed}`);
+  if (changed) parts.push(`~${changed}`);
+  return parts.join(' ');
 }
