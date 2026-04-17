@@ -35,3 +35,10 @@ export function resolveAlias(aliases: AliasMap, aliasOrPath: string): string {
 export function listAliases(aliases: AliasMap): Array<{ alias: string; path: string }> {
   return Object.entries(aliases).map(([alias, path]) => ({ alias, path }));
 }
+
+/**
+ * Returns true if the given alias exists in the alias map.
+ */
+export function hasAlias(aliases: AliasMap, alias: string): boolean {
+  return Object.prototype.hasOwnProperty.call(aliases, alias);
+}
