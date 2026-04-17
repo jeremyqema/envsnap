@@ -20,12 +20,21 @@ describe('matchesPattern', () => {
     expect(matchesPattern('API_KEY', '*_KEY')).toBe(true);
     expect(matchesPattern('PORT', '*_KEY')).toBe(false);
   });
+
+  it('matches standalone wildcard', () => {
+    expect(matchesPattern('ANYTHING', '*')).toBe(true);
+    expect(matchesPattern('', '*')).toBe(true);
+  });
 });
 
 describe('matchesAny', () => {
   it('returns true if key matches at least one pattern', () => {
     expect(matchesAny('API_KEY', ['PORT', '*_KEY'])).toBe(true);
     expect(matchesAny('NODE_ENV', ['PORT', '*_KEY'])).toBe(false);
+  });
+
+  it('returns false for empty pattern list', () => {
+    expect(matchesAny('API_KEY', [])).toBe(false);
   });
 });
 
@@ -52,6 +61,11 @@ describe('filterEnv', () => {
     const result = filterEnv(sampleEnv, { include: ['API_KEY'], exclude: ['API_KEY'] });
     expect(result).not.toHaveProperty('API_KEY');
   });
+
+  it('returns empty object when all keys are excluded', () => {
+    const result = filterEnv(sampleEnv, { exclude: ['*'] });
+    expect(Object.keys(result)).toHaveLength(0);
+  });
 });
 
 describe('redactEnv', () => {
@@ -65,5 +79,11 @@ describe('redactEnv', () => {
   it('leaves non-matching keys unchanged', () => {
     const result = redactEnv(sampleEnv, ['NONEXISTENT_*']);
     expect(result).toEqual(sampleEnv);
+  });
+
+  it('does not mutate the original env object', () => {
+    const env = { API_KEY: 'secret', NODE_ENV: 'production' };
+    redactEnv(env, ['API_KEY']);
+    expect(env['API_KEY']).toBe('secret');
   });
 });
