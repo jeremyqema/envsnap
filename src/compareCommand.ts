@@ -8,6 +8,19 @@ function printUsage(): void {
   console.log('  --json            Output diff as JSON');
 }
 
+function parseFlags(flags: string[]): {
+  filterConfigPath: string | undefined;
+  redact: boolean;
+  outputFormat: 'json' | 'text';
+} {
+  const filterIdx = flags.indexOf('--filter');
+  const filterConfigPath =
+    filterIdx !== -1 ? flags[filterIdx + 1] : undefined;
+  const redact = flags.includes('--redact');
+  const outputFormat = flags.includes('--json') ? 'json' : 'text';
+  return { filterConfigPath, redact, outputFormat };
+}
+
 export async function cmdCompare(args: string[]): Promise<void> {
   if (args.length < 2) {
     printUsage();
@@ -15,13 +28,7 @@ export async function cmdCompare(args: string[]): Promise<void> {
   }
 
   const [pathA, pathB, ...flags] = args;
-
-  const filterIdx = flags.indexOf('--filter');
-  const filterConfigPath =
-    filterIdx !== -1 ? flags[filterIdx + 1] : undefined;
-
-  const redact = flags.includes('--redact');
-  const outputFormat = flags.includes('--json') ? 'json' : 'text';
+  const { filterConfigPath, redact, outputFormat } = parseFlags(flags);
 
   try {
     await compareAndPrint(pathA, pathB, {
