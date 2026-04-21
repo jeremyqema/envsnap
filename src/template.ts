@@ -8,8 +8,21 @@ export interface SnapshotTemplate {
 }
 
 export function loadTemplate(filePath: string): SnapshotTemplate {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Template file not found: ${filePath}`);
+  }
   const raw = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(raw) as SnapshotTemplate;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(`Failed to parse template file "${filePath}": ${(e as Error).message}`);
+  }
+  const template = parsed as SnapshotTemplate;
+  if (!template.name || !Array.isArray(template.keys)) {
+    throw new Error(`Invalid template: "name" and "keys" are required fields`);
+  }
+  return template;
 }
 
 export function saveTemplate(filePath: string, template: SnapshotTemplate): void {
