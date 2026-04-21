@@ -2,11 +2,19 @@ import { loadAuditLog, appendAuditEntry, queryAuditLog } from './audit';
 
 const DEFAULT_PATH = '.envsnap-audit.json';
 
+/**
+ * Displays audit log entries, optionally filtered by action, label, or date.
+ */
 export function cmdAuditLog(args: string[]): void {
   const auditPath = process.env.ENVSNAP_AUDIT_PATH || DEFAULT_PATH;
   const action = args.find((a) => a.startsWith('--action='))?.split('=')[1];
   const label = args.find((a) => a.startsWith('--label='))?.split('=')[1];
   const since = args.find((a) => a.startsWith('--since='))?.split('=')[1];
+
+  if (since && isNaN(Date.parse(since))) {
+    console.error(`Invalid --since value: "${since}". Expected an ISO 8601 date string.`);
+    process.exit(1);
+  }
 
   const log = loadAuditLog(auditPath);
   const results = queryAuditLog(log, { action, label, since });
@@ -25,6 +33,9 @@ export function cmdAuditLog(args: string[]): void {
   }
 }
 
+/**
+ * Records a new audit entry with the given action, optional label, and details.
+ */
 export function cmdAuditRecord(
   action: string,
   label?: string,
