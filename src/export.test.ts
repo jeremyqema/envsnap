@@ -23,6 +23,12 @@ describe('exportSnapshot', () => {
     expect(parsed.env.FOO).toBe('bar');
   });
 
+  it('exports json format with timestamp preserved', () => {
+    const out = exportSnapshot(snapshot, 'json');
+    const parsed = JSON.parse(out);
+    expect(parsed.timestamp).toBe('2024-01-01T00:00:00.000Z');
+  });
+
   it('exports env format', () => {
     const out = exportSnapshot(snapshot, 'env');
     expect(out).toContain('FOO=bar');
@@ -52,6 +58,11 @@ describe('exportDiff', () => {
     expect(out).toContain('+NEW_KEY=new');
     expect(out).toContain('-OLD_KEY=old');
     expect(out).toContain('~FOO=bar -> baz');
+  });
+
+  it('exports diff as env with unchanged keys omitted', () => {
+    const out = exportDiff(diff, 'env');
+    expect(out).not.toContain('BAZ');
   });
 
   it('exports diff as csv', () => {
