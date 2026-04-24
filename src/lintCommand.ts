@@ -22,7 +22,14 @@ export async function cmdLint(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  const snapshot = loadSnapshot(filePath);
+  let snapshot;
+  try {
+    snapshot = loadSnapshot(filePath);
+  } catch (err) {
+    console.error(`Failed to parse snapshot file: ${(err as Error).message}`);
+    process.exit(1);
+  }
+
   const results = lintSnapshot(snapshot.env);
   const output = formatLintResults(results);
 
