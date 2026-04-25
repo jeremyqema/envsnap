@@ -40,6 +40,22 @@ describe('lintSnapshot', () => {
     expect(results).toHaveLength(1);
     expect(results[0].rule).toBe('no-localhost');
   });
+
+  it('includes the offending key in each result', () => {
+    const results = lintSnapshot({ myVar: '', 'BAD KEY': 'val' });
+    const keys = results.map((r) => r.key);
+    expect(keys).toContain('myVar');
+    expect(keys).toContain('BAD KEY');
+  });
+
+  it('returns multiple violations for a single key', () => {
+    // 'bad key' is non-uppercase AND contains whitespace
+    const results = lintSnapshot({ 'bad key': '' });
+    const rules = results.filter((r) => r.key === 'bad key').map((r) => r.rule);
+    expect(rules).toContain('uppercase-key');
+    expect(rules).toContain('no-whitespace-key');
+    expect(rules).toContain('no-empty-value');
+  });
 });
 
 describe('formatLintResults', () => {
