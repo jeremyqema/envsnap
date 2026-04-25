@@ -32,6 +32,10 @@ export function cmdMetaSet(
     if (args[i] === "--desc" && args[i + 1]) meta.description = args[++i];
     else if (args[i] === "--author" && args[i + 1]) meta.author = args[++i];
     else if (args[i] === "--source" && args[i + 1]) meta.source = args[++i];
+    else {
+      console.error(`Error: unknown option "${args[i]}"`);
+      process.exit(1);
+    }
   }
   const index = loadMetaIndex(metaFile);
   const updated = setMeta(index, label, meta);
@@ -59,6 +63,10 @@ export function cmdMetaRemove(
   if (!label) { console.error("Error: label required"); process.exit(1); }
   const index = loadMetaIndex(metaFile);
   const updated = removeMeta(index, label);
+  if (!getMeta(index, label)) {
+    console.log(`No metadata found for "${label}", nothing to remove.`);
+    return;
+  }
   saveMetaIndex(metaFile, updated);
   console.log(`Metadata removed for "${label}".`);
 }
