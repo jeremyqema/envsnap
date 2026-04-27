@@ -60,3 +60,13 @@ export function isArchived(index: ArchiveIndex, label: string): boolean {
 export function listArchived(index: ArchiveIndex): ArchiveEntry[] {
   return [...index.entries];
 }
+
+/**
+ * Returns the archive entry for the given label, or undefined if not found.
+ */
+export function getArchivedEntry(
+  index: ArchiveIndex,
+  label: string
+): ArchiveEntry | undefined {
+  return index.entries.find((e) => e.label === label);
+}
