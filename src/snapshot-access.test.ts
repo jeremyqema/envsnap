@@ -36,6 +36,16 @@ describe("snapshot-access", () => {
     expect(original.entries).toHaveLength(0);
   });
 
+  it("recordAccess stores a valid ISO timestamp", () => {
+    let idx = emptyAccessIndex();
+    const before = new Date().toISOString();
+    idx = recordAccess(idx, "prod", "read");
+    const after = new Date().toISOString();
+    const { accessedAt } = idx.entries[0];
+    expect(accessedAt >= before).toBe(true);
+    expect(accessedAt <= after).toBe(true);
+  });
+
   it("getAccessHistory filters by label", () => {
     let idx = emptyAccessIndex();
     idx = recordAccess(idx, "prod", "read");
