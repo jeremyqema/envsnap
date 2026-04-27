@@ -17,7 +17,11 @@ export function emptyAccessIndex(): AccessIndex {
 export function loadAccessIndex(filePath: string): AccessIndex {
   if (!fs.existsSync(filePath)) return emptyAccessIndex();
   const raw = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(raw) as AccessIndex;
+  try {
+    return JSON.parse(raw) as AccessIndex;
+  } catch {
+    throw new Error(`Failed to parse access index at "${filePath}": file may be corrupted`);
+  }
 }
 
 export function saveAccessIndex(filePath: string, index: AccessIndex): void {
@@ -58,4 +62,25 @@ export function clearAccessHistory(
   label: string
 ): AccessIndex {
   return { entries: index.entries.filter((e) => e.label !== label) };
+}
+
+/**
+ * Returns a summary of access counts grouped by action type for a given label.
+ * If no label is provided, summarises across all entries.
+ */
+export function getAccessSummary(
+  index: AccessIndex,
+  label?: string
+): Record<AccessEntry["action"], number> {
+  const entries = label
+    ? index.entries.filter((e) => e.label === label)
+    : index.entries;
+
+  return entries.reduce(
+    (acc, e) => {
+      acc[e.action] = (acc[e.action] ?? 0) + 1;
+      return acc;
+    },
+    { read: 0, write: 0, delete: 0 } as Record<AccessEntry["action"], number>
+  );
 }
